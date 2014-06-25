@@ -17,6 +17,18 @@
     formAsArray = this.serializeArray(); // array of objects {name, value}
     opts = f.optsWithDefaults(options); // calculate values for options {parseNumbers, parseBoolens, parseNulls}
 
+	  var form = this;
+	  $.each(opts.serializePlugins, function(i, plugin){
+		  var dataFromPlugin = [];
+		  if (typeof plugin == 'string' || plugin instanceof String) {
+			  dataFromPlugin = $.serializeJSON.plugins[plugin].call(form);
+		  } else if (typeof plugin == 'function') {
+			  dataFromPlugin = plugin.call(form);
+		  }
+		  dataFromPlugin = jQuery.grep(dataFromPlugin, function(n){return (n);}) // clear null values
+		  formAsArray = formAsArray.concat(dataFromPlugin);
+	  });
+
     serializedObject = {};
     $.each(formAsArray, function (i, input) {
       keys = f.splitInputNameIntoKeysArray(input.name); // "some[deep][key]" => ['some', 'deep', 'key']
@@ -37,8 +49,37 @@
       parseNulls: false, // convert "null" to null
       parseAll: false, // all of the above
       parseWithFunction: null, // to use custom parser, use a function like: function (val) => parsed_val
-      useIntKeysAsArrayIndex: false // name="foo[2]" value="v" => {foo: [null, null, "v"]}, instead of {foo: ["2": "v"]}
+      useIntKeysAsArrayIndex: false, // name="foo[2]" value="v" => {foo: [null, null, "v"]}, instead of {foo: ["2": "v"]}
+	    serializePlugins: null
     },
+
+	  plugins: {
+		  'uncheckedCheckbox': function() {
+			  return $('input:checkbox', this).map(function(){
+				  if (!this.checked) {
+					  return {
+						  name: this.name,
+						  value: false
+					  };
+				  }
+				  return null;
+			  });
+		  },
+		  'mediumEditor': function() {
+			  return $('.medium-editor', this).map(function(){
+				  return {
+					  name: $(this).attr('name'),
+					  value: $(this).html()
+				  };
+			  });
+		  },
+		  'DEBUG': function() {
+			  $('input', this).each(function() {
+				  console.log($(this).attr('name'), $(this).val());
+			  });
+			  return [];
+		  }
+	  },
 
     // Merge options with defaults to get {parseNumbers, parseBoolens, parseNulls, useIntKeysAsArrayIndex}
     optsWithDefaults: function(options) {
@@ -51,7 +92,8 @@
         parseBooleans: parseAll || f.optWithDefaults('parseBooleans', options),
         parseNulls:    parseAll || f.optWithDefaults('parseNulls',    options),
         parseWithFunction:         f.optWithDefaults('parseWithFunction', options),
-        useIntKeysAsArrayIndex:    f.optWithDefaults('useIntKeysAsArrayIndex', options)
+        useIntKeysAsArrayIndex:    f.optWithDefaults('useIntKeysAsArrayIndex', options),
+	      serializePlugins:          f.optWithDefaults('serializePlugins', options)
       }
     },
 
