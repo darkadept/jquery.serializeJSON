@@ -21,12 +21,11 @@
 	  $.each(opts.serializePlugins, function(i, plugin){
 		  var dataFromPlugin = [];
 		  if (typeof plugin == 'string' || plugin instanceof String) {
-			  dataFromPlugin = $.serializeJSON.plugins[plugin].call(form);
+			  dataFromPlugin = $.serializeJSON.plugins[plugin].call(form, formAsArray);
 		  } else if (typeof plugin == 'function') {
-			  dataFromPlugin = plugin.call(form);
+			  dataFromPlugin = plugin.call(form, formAsArray);
 		  }
-		  dataFromPlugin = jQuery.grep(dataFromPlugin, function(n){return (n);}) // clear null values
-		  formAsArray = formAsArray.concat(dataFromPlugin);
+		  formAsArray = jQuery.grep(dataFromPlugin, function(n){return (n);}) // clear null values
 	  });
 
     serializedObject = {};
@@ -54,8 +53,8 @@
     },
 
 	  plugins: {
-		  'uncheckedCheckbox': function() {
-			  return $('input:checkbox', this).map(function(){
+		  'uncheckedCheckbox': function(formAsArray) {
+			  var data = $('input:checkbox', this).map(function(){
 				  if (!this.checked) {
 					  return {
 						  name: this.name,
@@ -63,21 +62,38 @@
 					  };
 				  }
 				  return null;
-			  });
+			  }).get();
+			  return formAsArray.concat(data);
 		  },
-		  'mediumEditor': function() {
-			  return $('.medium-editor', this).map(function(){
+		  'mediumEditor': function(formAsArray) {
+			  var data = $('.medium-editor', this).map(function(){
 				  return {
 					  name: $(this).attr('name'),
 					  value: $(this).html()
 				  };
-			  });
+			  }).get();
+			  return formAsArray.concat(data);
 		  },
-		  'DEBUG': function() {
-			  $('input', this).each(function() {
+		  'select2': function(formAsArray) {
+				var data = $('input.select2', this).map(function(){
+					var name = $(this).attr('name');
+
+					formAsArray = jQuery.grep(formAsArray, function(value){
+						return value.name != name;
+					});
+
+					return {
+						name: name,
+						value: $(this).select2('val')
+					};
+				}).get();
+			  return formAsArray.concat(data);
+		  },
+		  'DEBUG': function(formAsArray) {
+			  $('input,select,.medium-editor', this).each(function() {
 				  console.log($(this).attr('name'), $(this).val());
-			  });
-			  return [];
+			  }).get();
+			  return formAsArray;
 		  }
 	  },
 
