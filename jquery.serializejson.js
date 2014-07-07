@@ -49,7 +49,7 @@
       parseAll: false, // all of the above
       parseWithFunction: null, // to use custom parser, use a function like: function (val) => parsed_val
       useIntKeysAsArrayIndex: false, // name="foo[2]" value="v" => {foo: [null, null, "v"]}, instead of {foo: ["2": "v"]}
-	    serializePlugins: null
+	    serializePlugins: []
     },
 
 	  plugins: {
