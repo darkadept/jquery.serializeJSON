@@ -75,7 +75,7 @@
 			  return formAsArray.concat(data);
 		  },
 		  'select2': function(formAsArray) {
-				var data = $('.widget-select2', this).map(function(){
+				var data = $('.widget-select2', this).not('.select2-container').map(function(){
 					var name = $(this).attr('name');
 
 					formAsArray = jQuery.grep(formAsArray, function(value){
