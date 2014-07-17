@@ -66,7 +66,7 @@
 			  return formAsArray.concat(data);
 		  },
 		  'mediumEditor': function(formAsArray) {
-			  var data = $('.medium-editor', this).map(function(){
+			  var data = $('.widget-mediumeditor', this).map(function(){
 				  return {
 					  name: $(this).attr('name'),
 					  value: $(this).html()
@@ -75,7 +75,7 @@
 			  return formAsArray.concat(data);
 		  },
 		  'select2': function(formAsArray) {
-				var data = $('input.select2', this).map(function(){
+				var data = $('.widget-select2', this).map(function(){
 					var name = $(this).attr('name');
 
 					formAsArray = jQuery.grep(formAsArray, function(value){
@@ -90,7 +90,7 @@
 			  return formAsArray.concat(data);
 		  },
 		  'DEBUG': function(formAsArray) {
-			  $('input,select,.medium-editor', this).each(function() {
+			  $('input,select,.widget-mediumeditor', this).each(function() {
 				  console.log($(this).attr('name'), $(this).val());
 			  }).get();
 			  return formAsArray;
